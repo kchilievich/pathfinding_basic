@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 
-#include "grid/grid.hpp"
+#include "grid/highlight_grid.hpp"
 #include <initializer_list>
 #include <vector>
 
@@ -30,7 +30,9 @@ int main()
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "Pathfinding Study");
     window.setFramerateLimit(144);
 
-    pf::Grid* main_grid = NewDrawable<pf::Grid>(30.f);
+    pf::HighlightGrid* main_grid = NewDrawable<pf::HighlightGrid>(30.f, &window);
+
+    std::chrono::high_resolution_clock::time_point frame_start;
 
     while (window.isOpen())
     {
@@ -41,25 +43,20 @@ int main()
                 window.close();
             }
         }
+        
+        float delta_time = (std::chrono::high_resolution_clock::now() - frame_start).count() / 1000000000.f /*Nanoseconds of high_resolution_clock to seconds, precision loss is acceptable I guess*/;
+        // TODO: Abstract Tickable interface and basically the same flow as with Drawable
+        {
+            main_grid->Tick(delta_time);
+        }
+        frame_start = std::chrono::high_resolution_clock::now();
 
         window.clear();
-
-        // TODO: Move into a separate drawable
-        { // Cell highlight
-            float grid_cell_size = main_grid->get_cell_size();
-            sf::Vector2i cursor_local_position = sf::Mouse::getPosition(window);
-
-            float x = grid_cell_size * std::floor(cursor_local_position.x / grid_cell_size);
-            float y = grid_cell_size * std::floor(cursor_local_position.y / grid_cell_size);
-
-            sf::RectangleShape cell_highlight({grid_cell_size, grid_cell_size});
-            cell_highlight.setPosition({x, y});
-            cell_highlight.setFillColor(sf::Color(123, 123, 123, 78));
-            window.draw(cell_highlight);
-        }
  
         DrawDrawables(window);
 
         window.display();
     }
+
+    g_drawables.clear();
 }
