@@ -12,9 +12,9 @@ namespace pf
     public:
         Grid(float cell_size, sf::RenderWindow* main_window);
 
-        float GetCellSize() const { return cell_size_; }
-        int GetLineLength() const { return line_length_; }
-        int GetColumnHeight() const { return column_height_; }
+        float GetCellSize() const { return cell_size; }
+        int GetLineLength() const { return line_length; }
+        int GetColumnHeight() const { return column_height; }
         
         /// @brief Returns a pointer to a Cell, that covers given position on screen
         /// @param x X position
@@ -31,16 +31,16 @@ namespace pf
     protected:
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-        const sf::RenderWindow* GetMainWindow() const { return main_window_; }
+        const sf::RenderWindow* GetMainWindow() const { return main_window; }
 
     private:
-        std::vector<Cell> cells_;
-        float cell_size_ = 0.f;
+        std::vector<Cell> cells;
+        float cell_size = 0.f;
         
-        int line_length_ = 0;
-        int column_height_ = 0;
+        int line_length = 0;
+        int column_height = 0;
 
         // TODO: Consider making that an interface with smart pointers and shit
-        sf::RenderWindow* main_window_;
+        sf::RenderWindow* main_window;
     };
 }

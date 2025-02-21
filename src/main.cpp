@@ -25,6 +25,11 @@ static void DrawDrawables(sf::RenderTarget& target)
 }
 // TODO END
 
+void AStar(pf::Grid* grid)
+{
+
+}
+
 int main()
 {
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "Pathfinding Study");
@@ -42,6 +47,13 @@ int main()
             {
                 window.close();
             }
+            if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+            {
+                if (mouseButtonPressed->button == sf::Mouse::Button::Right)
+                {
+                    main_grid->MarkSelectedCellAsBlocked();
+                }
+            }
         }
         
         float delta_time = (std::chrono::high_resolution_clock::now() - frame_start).count() / 1000000000.f /*Nanoseconds of high_resolution_clock to seconds, precision loss is acceptable I guess*/;
@@ -49,6 +61,7 @@ int main()
         {
             main_grid->Tick(delta_time);
         }
+
         frame_start = std::chrono::high_resolution_clock::now();
 
         window.clear();
