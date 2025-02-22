@@ -6,8 +6,28 @@ namespace pf
 {
     struct Cell
     {
-        Cell() : x(0), y(0) {}
-        Cell(int in_x, int in_y) : x(in_x), y(in_y) {}
+        Cell() : x(0), y(0) 
+        {
+            shape = std::make_unique<sf::RectangleShape>();
+        }
+
+        Cell(int in_x, int in_y) : x(in_x), y(in_y) 
+        {
+            shape = std::make_unique<sf::RectangleShape>();
+        }
+
+        // Move-constructor
+        Cell(Cell&& other) : x(other.x), y(other.y)
+        {
+            shape = std::move(other.shape);
+
+            is_blocked = other.is_blocked;
+            is_highlighted = other.is_highlighted;
+            fill_color = other.fill_color;
+            outline_color = other.outline_color;
+            blocked_mask = other.blocked_mask;
+            highlighted_mask = other.highlighted_mask;
+        }
 
         sf::Vector2f GetPosition(float cell_size) const
         {
@@ -16,16 +36,16 @@ namespace pf
 
         void BuildDrawable(float cell_size)
         {
-            shape.setSize({cell_size, cell_size});
-            shape.setPosition(GetPosition(cell_size));
-            shape.setFillColor(fill_color);
-            shape.setOutlineThickness(1.f);
-            shape.setOutlineColor(outline_color);
+            shape->setSize({cell_size, cell_size});
+            shape->setPosition(GetPosition(cell_size));
+            shape->setFillColor(fill_color);
+            shape->setOutlineThickness(1.f);
+            shape->setOutlineColor(outline_color);
         }
 
-        const sf::RectangleShape GetShape() const 
-        { 
-            return shape; 
+        const sf::RectangleShape& GetShape() const 
+        {
+            return *shape.get(); 
         }
 
         void ToggleBlocked()
@@ -62,7 +82,7 @@ namespace pf
                 resulting_color += highlighted_mask;
             }
 
-            shape.setFillColor(resulting_color);
+            shape->setFillColor(resulting_color);
         }
         
         void SetFillColor(sf::Color new_color)
@@ -87,6 +107,6 @@ namespace pf
         sf::Color blocked_mask = sf::Color::Red;
         sf::Color highlighted_mask = sf::Color(150, 150, 150, 100);
 
-        sf::RectangleShape shape;
+        std::unique_ptr<sf::RectangleShape> shape;
     };
 }

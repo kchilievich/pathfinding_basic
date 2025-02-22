@@ -1,9 +1,9 @@
 #include "grid.hpp"
 
-pf::Grid::Grid(float cell_size, sf::RenderWindow* main_window)
+pf::Grid::Grid(float in_cell_size, sf::RenderWindow* in_main_window)
 {
-    cell_size = cell_size;
-    main_window = main_window;
+    cell_size = in_cell_size;
+    main_window = in_main_window;
 
     auto [width, height] = main_window->getSize();
 

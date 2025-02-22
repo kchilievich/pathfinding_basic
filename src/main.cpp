@@ -8,9 +8,9 @@
 static std::vector<sf::Drawable*> g_drawables;
 
 template<class T = sf::Drawable, typename... Args>
-static T* NewDrawable(Args... args)
+static T* NewDrawable(Args&&... args)
 {
-    T* new_instance = new T(args...);
+    T* new_instance = new T(std::forward<Args>(args)...);
     g_drawables.push_back(new_instance);
 
     return new_instance;
