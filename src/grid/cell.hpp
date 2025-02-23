@@ -66,6 +66,8 @@ namespace pf
             UpdateFillColor();
         }
 
+        bool IsBlocked() const { return is_blocked; }
+
         int x;
         int y;
     private:

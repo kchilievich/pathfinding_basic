@@ -29,6 +29,11 @@ pf::Cell* pf::Grid::GetCellAtPosition(float x, float y)
 
 pf::Cell* pf::Grid::GetCellAtCoordinates(int coord_x, int coord_y)
 {
+    if (coord_x < 0 || coord_y < 0)
+    {
+        return nullptr;
+    }
+
     size_t index = coord_x * column_height + coord_y;
 
     if (cells.size() <= index)
