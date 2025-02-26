@@ -46,6 +46,11 @@ namespace pf
             selected_cell->ToggleBlocked();
         }
 
+        pf::Cell* GetSelectedCell() const
+        {
+            return selected_cell;
+        }
+
         private:
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override

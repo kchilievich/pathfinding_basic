@@ -4,6 +4,7 @@
 #include <initializer_list>
 #include <vector>
 #include <map>
+#include <iostream>
 
 // TODO: Temp global array, move to singleton
 static std::vector<sf::Drawable*> g_drawables;
@@ -136,10 +137,15 @@ int main()
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "Pathfinding Study");
     window.setFramerateLimit(144);
 
-    pf::HighlightGrid* main_grid = NewDrawable<pf::HighlightGrid>(30.f, &window);
+    pf::HighlightGrid* main_grid = NewDrawable<pf::HighlightGrid>(20.f, &window);
+
+    pf::Cell* start = main_grid->GetCellAtCoordinates(1, 1);
+    pf::Cell* target = main_grid->GetCellAtCoordinates(80, 40);
+    bool selecting_start = true;
+
     std::vector<sf::CircleShape*> tmp_drawable_path;
 
-    std::chrono::high_resolution_clock::time_point frame_start;
+    std::chrono::high_resolution_clock::time_point last_frame;
 
     while (window.isOpen())
     {
@@ -151,20 +157,45 @@ int main()
             }
             if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
             {
+                if (mouseButtonPressed->button == sf::Mouse::Button::Left)
+                {
+                    auto new_cell = main_grid->GetSelectedCell();
+                    if (!new_cell)
+                        continue;
+
+                    if (selecting_start)
+                    {
+                        start = new_cell;
+                    }
+                    else
+                    {
+                        target = new_cell;
+                    }
+
+                    selecting_start = !selecting_start;
+                }
                 if (mouseButtonPressed->button == sf::Mouse::Button::Right)
                 {
                     main_grid->MarkSelectedCellAsBlocked();
+                }
 
-                    // TODO: implement decently
-                    for (auto shape : tmp_drawable_path)
-                    {
-                        g_drawables.erase(std::find(g_drawables.begin(), g_drawables.end(), shape));
-                    }
-                    tmp_drawable_path.clear();
+                // TODO: implement decently
+                for (auto shape : tmp_drawable_path)
+                {
+                    g_drawables.erase(std::find(g_drawables.begin(), g_drawables.end(), shape));
+                }
+                tmp_drawable_path.clear();
 
-                    pf::Cell* start = main_grid->GetCellAtCoordinates(1, 1);
-                    pf::Cell* target = main_grid->GetCellAtCoordinates(20, 20);
+                {
+                    using namespace std::chrono;
+                    auto astar_begin = system_clock::now();
                     const std::vector<const pf::Cell*>& path = pf::Logic::AStar(main_grid, start, target);
+                    auto astar_end = system_clock::now();
+
+                    int delta = (time_point_cast<milliseconds>(astar_end) - time_point_cast<milliseconds>(astar_begin)).count();
+
+                    std::cout << "Path built in: " << delta << "ms" << std::endl;
+
                     for (const pf::Cell* cell : path)
                     {
                         sf::Vector2f cell_center = cell->GetShape().getPosition();
@@ -177,13 +208,17 @@ int main()
             }
         }
         
-        float delta_time = (std::chrono::high_resolution_clock::now() - frame_start).count() / 1000000000.f /*Nanoseconds of high_resolution_clock to seconds, precision loss is acceptable I guess*/;
-        // TODO: Abstract Tickable interface and basically the same flow as with Drawable
         {
-            main_grid->Tick(delta_time);
-        }
+            using namespace std::chrono;
 
-        frame_start = std::chrono::high_resolution_clock::now();
+            float delta_time = (time_point_cast<milliseconds>(high_resolution_clock::now()) - time_point_cast<milliseconds>(last_frame)).count() / 1000.f;
+            // TODO: Abstract Tickable interface and basically the same flow as with Drawable
+            {
+                main_grid->Tick(delta_time);
+            }
+
+            last_frame = high_resolution_clock::now();
+        }
 
         window.clear();
  
