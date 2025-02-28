@@ -15,8 +15,13 @@ FetchContent_MakeAvailable(SFML)
 add_executable(main 
     src/main.cpp 
     src/grid/grid.hpp 
-    src/grid/highlight_grid.hpp
     src/grid/grid.cpp
-    src/grid/cell.hpp)
+    src/grid/cell.hpp
+    src/pathfinding/astar.hpp
+    src/pathfinding/astar.cpp
+    lib/cJSON.h
+    lib/cJSON.c)
+
+target_include_directories(main PRIVATE lib/ src/)
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)

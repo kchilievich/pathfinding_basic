@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <cJSON.h>
 
 namespace pf 
 {
@@ -67,6 +68,19 @@ namespace pf
         }
 
         bool IsBlocked() const { return is_blocked; }
+
+        cJSON* ToJSON() const 
+        {
+            auto json = cJSON_CreateObject();
+            cJSON_AddNumberToObject(json, "x", x);
+            cJSON_AddNumberToObject(json, "y", y);
+            cJSON_AddBoolToObject(json, "is_blocked", is_blocked);
+
+            return json;
+
+            // NOTE: other data is unnecessary atm, will add later if needed
+            // cJSON_AddNumberToObject(json, "fill_color", fill_color.toInteger());
+        }
 
         int x;
         int y;

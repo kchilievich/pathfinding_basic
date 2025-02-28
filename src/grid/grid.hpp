@@ -1,16 +1,24 @@
 #pragma once
 
+#include "cell.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
-#include "cell.hpp"
 
 namespace pf 
 {
     class Grid : public sf::Drawable
     {
     public:
-        Grid(float cell_size, sf::RenderWindow* main_window);
+        Grid(float cell_size, std::weak_ptr<sf::RenderWindow> main_window);
+
+        virtual ~Grid();
+
+        void Tick(float delta_time);
+
+        void MarkSelectedCellAsBlocked();
+
+        pf::Cell* GetSelectedCell() const;
 
         float GetCellSize() const { return cell_size; }
         int GetLineLength() const { return line_length; }
@@ -28,10 +36,16 @@ namespace pf
         /// @return a Cell pointer if a cell with given coordinates exists, nullptr otherwise
         Cell* GetCellAtCoordinates(int coord_x, int coord_y);
 
+        void Serialize(std::ostream& output);
+        
+        static pf::Grid* Deserialize(std::ifstream& input, std::weak_ptr<sf::RenderWindow> window);
+
     protected:
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-        const sf::RenderWindow* GetMainWindow() const { return main_window; }
+        void SelectCell();
+
+        const sf::RenderWindow* GetMainWindow() const; 
 
     private:
         std::vector<Cell> cells;
@@ -40,7 +54,12 @@ namespace pf
         int line_length = 0;
         int column_height = 0;
 
-        // TODO: Consider making that an interface with smart pointers and shit
-        sf::RenderWindow* main_window;
+        // TODO: Consider making that an interface
+        std::weak_ptr<sf::RenderWindow> main_window;
+
+        pf::Cell* selected_cell = nullptr;
+
+        sf::Text* coordinates_string = nullptr;
+        sf::Font coordinates_string_font;
     };
 }
